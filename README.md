@@ -4,7 +4,7 @@
 
 ResNet (Residual Network) is a convolutional neural network that democratized the concepts of residual learning and skip connections. This is a BentoML example project, demonstrating how to build an image classification inference API server with a [ResNet model (ResNet-50 v1.5)](https://huggingface.co/microsoft/resnet-50) and BentoML.
 
-See [here](https://github.com/bentoml/BentoML/tree/main/examples) for a full list of BentoML example projects.
+See [here](https://docs.bentoml.com/en/latest/examples/overview.html) for a full list of BentoML example projects.
 
 ## Install dependencies
 
