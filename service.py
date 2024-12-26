@@ -1,5 +1,6 @@
 import typing as t
-import numpy as np
+from typing import Any
+
 from PIL.Image import Image
 
 import bentoml
@@ -13,10 +14,10 @@ BENTOML_MODEL_TAG = "resnet-50"
         "timeout": 300,
         "concurrency": 256,
     },
-    resources={
-        "gpu": 1,
-        "gpu_type": "nvidia-tesla-t4",
-    },
+    # gpu의 경우 사용
+    # resources={
+    #     "gpu": 1,
+    # },
 )
 class Resnet:
 
@@ -34,8 +35,8 @@ class Resnet:
         )
         print("Model resnet loaded", "device:", self.device)
 
-    @bentoml.api(batchable=True)
-    async def classify(self, images: t.List[Image]) -> t.List[str]:
+    @bentoml.api
+    async def classify(self, images: Image) -> dict[str, float | Any]:
         '''
         Classify input images to labels
         '''
@@ -43,11 +44,7 @@ class Resnet:
 
         inputs = self.processor(images=images, return_tensors="pt").to(self.device)
         with torch.no_grad():
-            logits = self.model(**inputs).logits
-
-        labels = []
-        for max_possible in logits.argmax(-1):
-            label_id = max_possible.item()
-            labels.append(self.model.config.id2label[label_id])
-
-        return labels
+            logits: torch.Tensor = self.model(**inputs).logits
+        print(logits.shape)
+        label_id = logits.squeeze(0).argmax().item()
+        return {"label": self.model.config.id2label[label_id], "score": float(logits.max().item())}

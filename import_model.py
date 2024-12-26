@@ -10,7 +10,7 @@ def import_model(model_id, bento_model_tag):
 
     model = ResNetForImageClassification.from_pretrained(
         model_id,
-        low_cpu_mem_usage=True,
+        # low_cpu_mem_usage=True,
     )
     processor = AutoImageProcessor.from_pretrained(model_id)
 
