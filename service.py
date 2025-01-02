@@ -1,12 +1,12 @@
 import typing as t
-from typing import Any
+from typing import Any, List
 
 from PIL.Image import Image
 
 import bentoml
 
 
-BENTOML_MODEL_TAG = "resnet-50"
+BENTOML_MODEL_TAG = "resnet-50:kkhahjwedkfpqytn"
 
 @bentoml.service(
     name="bentoresnet",
@@ -19,8 +19,8 @@ BENTOML_MODEL_TAG = "resnet-50"
     #     "gpu": 1,
     # },
 )
-class Resnet:
 
+class Resnet:
     bento_model_ref = bentoml.models.get(BENTOML_MODEL_TAG)
 
     def __init__(self) -> None:
@@ -35,8 +35,8 @@ class Resnet:
         )
         print("Model resnet loaded", "device:", self.device)
 
-    @bentoml.api
-    async def classify(self, images: Image) -> dict[str, float | Any]:
+    @bentoml.api(batchable=True, batch_dim=16)
+    async def classify(self, images: List[Image]) -> dict[str, float | Any]:
         '''
         Classify input images to labels
         '''
