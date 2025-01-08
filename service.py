@@ -1,10 +1,10 @@
-import typing as t
 from typing import Any, List
 
-from PIL.Image import Image
-
 import bentoml
-
+from PIL import Image
+from typing import List, Dict
+import base64
+from io import BytesIO
 
 BENTOML_MODEL_TAG = "resnet-50:kkhahjwedkfpqytn"
 
@@ -35,12 +35,13 @@ class Resnet:
         )
         print("Model resnet loaded", "device:", self.device)
 
-    @bentoml.api(batchable=True, batch_dim=16)
-    async def classify(self, images: List[Image]) -> dict[str, float | Any]:
+    @bentoml.api
+    async def classify(self, images: List[str]) -> dict[str, float | Any]:
         '''
         Classify input images to labels
         '''
         import torch
+        images = [Image.open(BytesIO(base64.b64decode(bytestring))) for bytestring in images]
 
         inputs = self.processor(images=images, return_tensors="pt").to(self.device)
         with torch.no_grad():

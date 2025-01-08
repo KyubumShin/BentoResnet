@@ -1,3 +1,5 @@
+import base64
+
 import streamlit as st
 import PIL.Image as Image
 import requests
@@ -17,25 +19,22 @@ def main():
                 image = Image.open(file).convert("RGB")
                 st.image(image, caption="업로드된 이미지", use_column_width=True)
             # 업로드된 이미지 열기
-        image = Image.open(uploaded_file).convert("RGB")
-        st.image(image, caption="업로드된 이미지", use_column_width=True)
+        else:
+            image = Image.open(uploaded_file).convert("RGB")
+            st.image(image, caption="업로드된 이미지", use_column_width=True)
         if st.button("Predict"):
-            header = {"accept": "image/*"}
+            header = {"Content-Type": "application/json"}
 
             if isinstance(uploaded_file, list):
                 data = []
                 for file in uploaded_file:
                     type = check_type(file.name)
                     if type:
-                        data.append((file.name,
-                                file.getvalue(),
-                                type))
+                        data.append(base64.b64encode(file.getvalue()).decode('utf-8'))
                 files = {"images": data}
             else:
-                files = {"images": (uploaded_file.name,
-                                    uploaded_file.getvalue(),
-                                    "image/png")}
-            response = requests.post(url=HOST + "/classify", files=files, headers=header)
+                files = {"images": [base64.b64encode(uploaded_file.getvalue()).decode('utf-8')]}
+            response = requests.post(url=HOST + "/classify", json=files, headers=header)
 
             if response.status_code == 200:
                 res_json = response.json()
